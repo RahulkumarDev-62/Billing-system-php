@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="1" stop-color="#1e3a8a"/>
+    </linearGradient>
+    <radialGradient id="glowA" cx="20%" cy="20%" r="60%">
+      <stop offset="0" stop-color="#38bdf8" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#38bdf8" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowB" cx="80%" cy="70%" r="55%">
+      <stop offset="0" stop-color="#60a5fa" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#60a5fa" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1440" height="900" fill="url(#sky)"/>
+  <rect width="1440" height="900" fill="url(#glowA)"/>
+  <rect width="1440" height="900" fill="url(#glowB)"/>
+  <g fill="none" stroke="#93c5fd" stroke-opacity="0.2">
+    <path d="M0 180h1440"/>
+    <path d="M0 360h1440"/>
+    <path d="M0 540h1440"/>
+    <path d="M0 720h1440"/>
+    <path d="M240 0v900"/>
+    <path d="M480 0v900"/>
+    <path d="M720 0v900"/>
+    <path d="M960 0v900"/>
+    <path d="M1200 0v900"/>
+  </g>
+  <g fill="#38bdf8" fill-opacity="0.18">
+    <circle cx="280" cy="180" r="90"/>
+    <circle cx="1240" cy="210" r="70"/>
+    <circle cx="1090" cy="670" r="140"/>
+  </g>
+</svg>

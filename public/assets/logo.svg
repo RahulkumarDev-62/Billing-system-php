@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 220" role="img" aria-labelledby="logoTitle logoDesc">
+  <title id="logoTitle">Supermarket Management System Logo</title>
+  <desc id="logoDesc">Rounded square logo with cart icon and SMS initials.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0ea5e9"/>
+      <stop offset="1" stop-color="#1d4ed8"/>
+    </linearGradient>
+    <linearGradient id="cart" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#e2e8f0"/>
+    </linearGradient>
+  </defs>
+  <rect x="10" y="10" width="200" height="200" rx="44" fill="url(#bg)"/>
+  <path d="M61 74h16l10 56h69l10-44H85" fill="none" stroke="url(#cart)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="102" cy="154" r="10" fill="#f8fafc"/>
+  <circle cx="150" cy="154" r="10" fill="#f8fafc"/>
+  <text x="110" y="196" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-weight="800" font-size="30" letter-spacing="3" fill="#e0f2fe">SMS</text>
+</svg>

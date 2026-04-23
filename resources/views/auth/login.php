@@ -6,12 +6,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?php echo e((string) $title); ?></title>
     <style>
-        body { font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; background: #eef3ff; margin: 0; }
-        .wrap { max-width: 460px; margin: 50px auto; padding: 28px; background: #fff; border: 1px solid #d6e1ff; border-radius: 20px; box-shadow: 0 20px 40px rgba(16, 24, 40, 0.08); }
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            background:
+                linear-gradient(rgba(10, 20, 54, 0.58), rgba(10, 20, 54, 0.58)),
+                url("<?php echo e(url('/assets/hero-pattern.svg')); ?>") center / cover no-repeat;
+            display: grid;
+            place-items: center;
+            padding: 16px;
+        }
+        .wrap {
+            width: min(480px, 100%);
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid #d6e1ff;
+            border-radius: 22px;
+            box-shadow: 0 24px 48px rgba(16, 24, 40, 0.24);
+        }
+        .top {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        .top img {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+        }
         .field { margin-bottom: 14px; }
         input { width: 100%; padding: 11px 12px; border-radius: 12px; border: 1px solid #d6e1ff; }
         button, a { display: inline-block; padding: 10px 14px; border-radius: 12px; text-decoration: none; }
-        button { border: 0; background: #1E4AFF; color: #fff; font-weight: 700; }
+        button { border: 0; background: linear-gradient(135deg, #0ea5e9, #1E4AFF); color: #fff; font-weight: 700; }
         .error { color: #b03a2e; font-size: 13px; margin-top: 6px; }
         .muted { color: #59667a; font-size: 14px; }
         .row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
@@ -20,10 +48,22 @@
         .tab { text-align: center; padding: 9px 10px; border-radius: 10px; border: 1px solid #c9d8ff; color: #1E4AFF; cursor: pointer; font-size: 13px; }
         .tab.active { background: #1E4AFF; color: #fff; }
         .hidden { display: none; }
+        @media (max-width: 480px) {
+            .wrap { padding: 22px; border-radius: 16px; }
+            h1 { font-size: 24px; }
+        }
     </style>
 </head>
 <body>
     <div class="wrap">
+        <div class="top">
+            <img src="<?php echo e(url('/assets/logo.svg')); ?>" alt="SMS logo">
+            <div>
+                <strong>Supermarket Management</strong>
+                <div class="muted">Secure role-based authentication</div>
+            </div>
+        </div>
+
         <h1><?php echo e(ucfirst((string) $role)); ?> Login</h1>
         <p class="muted">Role based secure access panel</p>
 

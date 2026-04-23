@@ -19,12 +19,13 @@ $role = auth_role();
             --muted: #5b6572;
             --accent: #1E4AFF;
             --border: #dbe4ff;
+            --ring: #93c5fd;
         }
 
         * { box-sizing: border-box; }
         body {
             margin: 0;
-            font-family: Arial, Helvetica, sans-serif;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(180deg, #f2f7ff 0%, #e8efff 100%);
             color: var(--text);
         }
@@ -46,6 +47,18 @@ $role = auth_role();
             align-items: center;
             padding: 18px 22px;
             margin-bottom: 24px;
+            gap: 18px;
+        }
+        .brand-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .brand-wrap img {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            border: 1px solid #bfdbfe;
         }
         .brand {
             font-weight: 700;
@@ -53,11 +66,33 @@ $role = auth_role();
             text-transform: uppercase;
             color: var(--accent);
         }
+        .nav {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
         .nav a {
             color: var(--text);
             text-decoration: none;
-            margin-left: 14px;
             font-size: 14px;
+            border: 1px solid transparent;
+            padding: 6px 10px;
+            border-radius: 9px;
+            transition: 0.18s ease;
+        }
+        .nav a:hover {
+            border-color: var(--ring);
+            background: #eff6ff;
+        }
+        .menu-toggle {
+            display: none;
+            border: 1px solid var(--border);
+            background: #fff;
+            border-radius: 8px;
+            padding: 8px 10px;
+            font: inherit;
+            cursor: pointer;
         }
         .banner {
             margin-bottom: 18px;
@@ -148,16 +183,37 @@ $role = auth_role();
             flex-wrap: wrap;
             margin-bottom: 18px;
         }
+        @media (max-width: 900px) {
+            .topbar {
+                flex-wrap: wrap;
+            }
+            .menu-toggle {
+                display: inline-block;
+            }
+            .nav {
+                display: none;
+                width: 100%;
+                padding-top: 8px;
+                border-top: 1px solid var(--border);
+            }
+            .nav.open {
+                display: flex;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="shell">
         <header class="topbar">
-            <div>
-                <div class="brand"><?php echo e((string) $siteName); ?></div>
-                <div class="muted">Panel-based supermarket operations</div>
+            <div class="brand-wrap">
+                <img src="<?php echo e(url('/assets/logo.svg')); ?>" alt="SMS logo">
+                <div>
+                    <div class="brand"><?php echo e((string) $siteName); ?></div>
+                    <div class="muted">Panel-based supermarket operations</div>
+                </div>
             </div>
-            <nav class="nav">
+            <button class="menu-toggle" id="menuToggle" type="button" aria-label="Toggle menu">Menu</button>
+            <nav class="nav" id="mainNav">
                 <?php if ($user): ?>
                     <?php if ($role === 'admin'): ?>
                         <a href="<?php echo e(url('/admin/dashboard')); ?>">Dashboard</a>
@@ -196,5 +252,17 @@ $role = auth_role();
             <?php echo $content; ?>
         </main>
     </div>
+    <script>
+        (function () {
+            const toggle = document.getElementById('menuToggle');
+            const nav = document.getElementById('mainNav');
+            if (!toggle || !nav) {
+                return;
+            }
+            toggle.addEventListener('click', function () {
+                nav.classList.toggle('open');
+            });
+        })();
+    </script>
 </body>
 </html>
