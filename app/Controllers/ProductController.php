@@ -30,7 +30,7 @@ final class ProductController extends CrudController
             ['name' => 'cost', 'label' => 'Cost Price', 'type' => 'number', 'step' => '0.01'],
             ['name' => 'stock', 'label' => 'Stock', 'type' => 'number'],
             ['name' => 'reorder_level', 'label' => 'Reorder Level', 'type' => 'number'],
-            ['name' => 'image', 'label' => 'Image URL', 'type' => 'text'],
+            ['name' => 'image', 'label' => 'Product Image', 'type' => 'file'],
             ['name' => 'barcode', 'label' => 'Barcode', 'type' => 'text'],
         ];
     }
@@ -108,6 +108,26 @@ final class ProductController extends CrudController
         verify_csrf();
 
         $input = request();
+        $upload = $this->handleImageUpload();
+        if (!empty($upload['error'])) {
+            $input['image'] = '';
+
+            return $this->view($this->viewPrefix . '/form', [
+                'title' => 'Create ' . $this->resourceLabel,
+                'resourceLabel' => $this->resourceLabel,
+                'basePath' => $this->basePath,
+                'fields' => $this->fieldsWithOptions(),
+                'item' => $input,
+                'errors' => ['image' => (string) $upload['error']],
+                'action' => $this->basePath,
+                'submitLabel' => 'Create ' . $this->resourceLabel,
+            ]);
+        }
+
+        if (!empty($upload['path'])) {
+            $input['image'] = (string) $upload['path'];
+        }
+
         if (trim((string) ($input['barcode'] ?? '')) === '') {
             $input['barcode'] = (new Product())->generateBarcode();
         }
@@ -148,6 +168,34 @@ final class ProductController extends CrudController
 
         $input = request();
         $existing = $this->model()->find($id);
+        if ($existing === null) {
+            http_response_code(404);
+            return 'Product not found';
+        }
+
+        $upload = $this->handleImageUpload();
+        if (!empty($upload['error'])) {
+            $input['image'] = (string) ($existing['image'] ?? '');
+
+            return $this->view($this->viewPrefix . '/form', [
+                'title' => 'Edit ' . $this->resourceLabel . ' #' . $id,
+                'resourceLabel' => $this->resourceLabel,
+                'basePath' => $this->basePath,
+                'fields' => $this->fieldsWithOptions(),
+                'item' => $input,
+                'errors' => ['image' => (string) $upload['error']],
+                'action' => $this->basePath . '/' . $id,
+                'submitLabel' => 'Update ' . $this->resourceLabel,
+            ]);
+        }
+
+        if (!empty($upload['path'])) {
+            $input['image'] = (string) $upload['path'];
+            $this->deleteExistingImage((string) ($existing['image'] ?? ''));
+        } else {
+            $input['image'] = (string) ($existing['image'] ?? '');
+        }
+
         if ($existing && trim((string) ($input['barcode'] ?? '')) === '') {
             $input['barcode'] = (string) $existing['barcode'];
         }
@@ -213,6 +261,109 @@ final class ProductController extends CrudController
         response_json(['success' => true, 'data' => $product]);
     }
 
+    public function createDemoProducts(): void
+    {
+        require_auth();
+        require_admin();
+        verify_csrf();
+
+        $connection = Database::connection();
+        $categories = new Category();
+
+        $requiredCategories = ['Groceries', 'Beverages', 'Snacks', 'Dairy'];
+        $categoryIds = [];
+        foreach ($requiredCategories as $categoryName) {
+            $category = $categories->findByName($categoryName);
+            if ($category === null) {
+                $categories->create(['name' => $categoryName]);
+                $category = $categories->findByName($categoryName);
+            }
+            if ($category !== null) {
+                $categoryIds[$categoryName] = (int) $category['id'];
+            }
+        }
+
+        $demoProducts = [
+            [
+                'name' => 'Basmati Rice 5kg',
+                'category' => 'Groceries',
+                'price' => 620,
+                'cost' => 540,
+                'stock' => 45,
+                'reorder_level' => 12,
+                'image' => '/assets/products/rice.svg',
+                'barcode' => '8901001000012',
+            ],
+            [
+                'name' => 'Sunflower Oil 1L',
+                'category' => 'Groceries',
+                'price' => 165,
+                'cost' => 145,
+                'stock' => 70,
+                'reorder_level' => 18,
+                'image' => '/assets/products/oil.svg',
+                'barcode' => '8901001000029',
+            ],
+            [
+                'name' => 'Fresh Milk 1L',
+                'category' => 'Dairy',
+                'price' => 62,
+                'cost' => 50,
+                'stock' => 90,
+                'reorder_level' => 25,
+                'image' => '/assets/products/milk.svg',
+                'barcode' => '8901001000036',
+            ],
+            [
+                'name' => 'Salted Chips 90g',
+                'category' => 'Snacks',
+                'price' => 25,
+                'cost' => 17,
+                'stock' => 130,
+                'reorder_level' => 35,
+                'image' => '/assets/products/chips.svg',
+                'barcode' => '8901001000043',
+            ],
+            [
+                'name' => 'Orange Juice 1L',
+                'category' => 'Beverages',
+                'price' => 110,
+                'cost' => 84,
+                'stock' => 60,
+                'reorder_level' => 20,
+                'image' => '/assets/products/juice.svg',
+                'barcode' => '8901001000050',
+            ],
+        ];
+
+        $created = 0;
+        foreach ($demoProducts as $product) {
+            $statement = $connection->prepare('SELECT id FROM products WHERE name = :name AND branch_id IS NULL LIMIT 1');
+            $statement->execute(['name' => $product['name']]);
+            $exists = $statement->fetch(\PDO::FETCH_ASSOC);
+
+            if ($exists) {
+                continue;
+            }
+
+            $this->model()->create([
+                'name' => $product['name'],
+                'category_id' => (int) ($categoryIds[$product['category']] ?? 0),
+                'branch_id' => null,
+                'price' => (float) $product['price'],
+                'cost' => (float) $product['cost'],
+                'stock' => (int) $product['stock'],
+                'reorder_level' => (int) $product['reorder_level'],
+                'image' => $product['image'],
+                'barcode' => $product['barcode'],
+            ]);
+            $created++;
+        }
+
+        flash('success', $created > 0 ? $created . ' demo products created.' : 'Demo products already exist.');
+        redirect('/admin/products');
+    }
+
     private function fieldsWithOptions(): array
     {
         $categories = (new Category())->all();
@@ -238,5 +389,68 @@ final class ProductController extends CrudController
         $branchId = (int) ($value ?? 0);
 
         return $branchId > 0 ? $branchId : null;
+    }
+
+    private function handleImageUpload(): array
+    {
+        if (!isset($_FILES['image']) || !is_array($_FILES['image'])) {
+            return ['path' => null, 'error' => null];
+        }
+
+        $file = $_FILES['image'];
+        $error = (int) ($file['error'] ?? UPLOAD_ERR_NO_FILE);
+
+        if ($error === UPLOAD_ERR_NO_FILE) {
+            return ['path' => null, 'error' => null];
+        }
+
+        if ($error !== UPLOAD_ERR_OK) {
+            return ['path' => null, 'error' => 'Image upload failed. Please try again.'];
+        }
+
+        $tmpPath = (string) ($file['tmp_name'] ?? '');
+        if (!is_uploaded_file($tmpPath)) {
+            return ['path' => null, 'error' => 'Invalid uploaded file.'];
+        }
+
+        $mime = (string) (mime_content_type($tmpPath) ?: '');
+        $allowed = [
+            'image/jpeg' => 'jpg',
+            'image/png' => 'png',
+            'image/webp' => 'webp',
+            'image/gif' => 'gif',
+        ];
+
+        if (!isset($allowed[$mime])) {
+            return ['path' => null, 'error' => 'Only JPG, PNG, WEBP, or GIF images are allowed.'];
+        }
+
+        $uploadDir = base_path('public/uploads/products');
+        if (!is_dir($uploadDir) && !mkdir($uploadDir, 0775, true) && !is_dir($uploadDir)) {
+            return ['path' => null, 'error' => 'Unable to create upload directory.'];
+        }
+
+        $filename = 'product_' . date('Ymd_His') . '_' . bin2hex(random_bytes(4)) . '.' . $allowed[$mime];
+        $targetPath = $uploadDir . DIRECTORY_SEPARATOR . $filename;
+
+        if (!move_uploaded_file($tmpPath, $targetPath)) {
+            return ['path' => null, 'error' => 'Could not save uploaded image.'];
+        }
+
+        return ['path' => '/uploads/products/' . $filename, 'error' => null];
+    }
+
+    private function deleteExistingImage(string $imagePath): void
+    {
+        $imagePath = trim($imagePath);
+        if ($imagePath === '' || str_starts_with($imagePath, 'http://') || str_starts_with($imagePath, 'https://')) {
+            return;
+        }
+
+        $normalized = ltrim(str_replace('/', DIRECTORY_SEPARATOR, $imagePath), DIRECTORY_SEPARATOR);
+        $fullPath = base_path('public' . DIRECTORY_SEPARATOR . $normalized);
+        if (is_file($fullPath)) {
+            @unlink($fullPath);
+        }
     }
 }

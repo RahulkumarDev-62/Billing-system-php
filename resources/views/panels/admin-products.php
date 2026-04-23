@@ -4,6 +4,10 @@
     <div class="toolbar">
         <a class="btn" href="<?php echo e(url('/products')); ?>">Open Product Manager</a>
         <a class="btn secondary" href="<?php echo e(url('/products/create')); ?>">Create Product</a>
+        <form method="post" action="<?php echo e(url('/products/demo-create')); ?>" style="display:inline;">
+            <?php echo csrf_field(); ?>
+            <button class="btn" type="submit">Create Demo Products</button>
+        </form>
     </div>
     <div class="card">
         <table>

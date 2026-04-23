@@ -21,7 +21,18 @@
                     <?php foreach ($items as $item): ?>
                         <tr>
                             <?php foreach ($fields as $field): ?>
-                                <td><?php echo e((string) ($item[$field['name']] ?? '')); ?></td>
+                                <td>
+                                    <?php if (($field['name'] ?? '') === 'image' && !empty($item[$field['name']])): ?>
+                                        <?php $imagePath = (string) $item[$field['name']]; ?>
+                                        <img
+                                            src="<?php echo e((str_starts_with($imagePath, 'http://') || str_starts_with($imagePath, 'https://')) ? $imagePath : url($imagePath)); ?>"
+                                            alt="Product image"
+                                            style="width: 52px; height: 52px; object-fit: cover; border-radius: 8px; border: 1px solid #dbe4ff;"
+                                        >
+                                    <?php else: ?>
+                                        <?php echo e((string) ($item[$field['name']] ?? '')); ?>
+                                    <?php endif; ?>
+                                </td>
                             <?php endforeach; ?>
                             <td class="actions">
                                 <?php if (auth_is_admin()): ?>

@@ -46,6 +46,7 @@ Router::get('/health', static fn (): string => 'OK');
 Router::get('/api/products', [ProductController::class, 'jsonIndex']);
 Router::get('/api/products/scan/{id}', [ProductController::class, 'scanner']);
 Router::get('/products/{id}/barcode', [ProductController::class, 'barcode']);
+Router::post('/products/demo-create', [ProductController::class, 'createDemoProducts']);
 Router::get('/api/orders/mode/{mode}/status/{status}', [OrderController::class, 'filter']);
 Router::get('/api/orders/counts', [OrderController::class, 'countSummary']);
 Router::get('/api/users/operators/{type}', [UserController::class, 'operators']);
